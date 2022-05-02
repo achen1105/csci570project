@@ -1,4 +1,4 @@
-class Main
+class Efficient
 {
     public static void main(String[] args)
     {

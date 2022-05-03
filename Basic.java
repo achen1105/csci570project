@@ -102,6 +102,7 @@ public class Basic {
                         Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i))][SEQUENCE_INDEX
                                 .indexOf(s2.charAt(j))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
                         GAP_PENALTY + opt[i][j - 1]);
+                System.out.println(opt[i][j]);
             }
         }
 
@@ -120,13 +121,13 @@ public class Basic {
             if (opt[i-1][j] <= opt[i-1][j-1] && opt[i-1][j] <= opt[i][j-1])
             {
                 a1 = "_" + s1.charAt(i) + a1;
-                a2 = s2.charAt(j) + a2;
+                //a2 = s2.charAt(j) + a2;
                 i--;
             }
             // y_n
             else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
             {
-                a1 = s1.charAt(i) + a1;
+                //a1 = s1.charAt(i) + a1;
                 a2 = "_" + s2.charAt(j) + a2;
                 j--;
             }

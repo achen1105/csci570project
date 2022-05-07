@@ -89,7 +89,7 @@ public class Basic {
                         Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX
                                 .indexOf(s2.charAt(j-1))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
                         GAP_PENALTY + opt[i][j - 1]);
-                System.out.println(i + " " + j + " " + opt[i][j]);
+                //System.out.println(i + " " + j + " " + opt[i][j]);
             }
         }
 

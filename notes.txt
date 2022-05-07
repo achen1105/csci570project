@@ -41,7 +41,7 @@ public class Basic {
 
         basic.writeOutput(outputPath, (float) totalTime, (float) totalUsage);
 
-        //System.out.println("CSCI 570 Project " + basic.getSequence1() + " " + basic.getSequence2() + " " + totalUsage);
+        System.out.println("CSCI 570 Project " + basic.getSequence1() + " " + basic.getSequence2() + " " + totalUsage);
     }
 
     /**
@@ -102,22 +102,20 @@ public class Basic {
         int i = s1.length();
         int j = s2.length();
 
-        // fixed only this part using https://www.geeksforgeeks.org/sequence-alignment-problem/
         while (i >= 1 && j >= 1)
         {
             // x_m go horizontal
             if (opt[i-1][j] <= opt[i-1][j-1] && opt[i-1][j] <= opt[i][j-1])
             {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = "_" + a2;
+                a1 = "_" + s1.charAt(i-1) + a1;
+                //a2 = s2.charAt(j) + a2;
                 i--;
             }
             // y_n go vertical
             else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
             {
                 //a1 = s1.charAt(i) + a1;
-                a2 = s2.charAt(j-1) + a2;
-                a1 = "_" + a1;
+                a2 = "_" + s2.charAt(j-1) + a2;
                 j--;
             }
             // go diagonal
@@ -135,8 +133,7 @@ public class Basic {
         {
             while (j > 0)
             {
-                a2 = s2.charAt(j-1) + a2;
-                a1 = "_" + a1;
+                a2 = "_" + s2.charAt(j-1) + a2;
                 j--;
             }
         }
@@ -146,8 +143,7 @@ public class Basic {
         {
             while (i > 0)
             {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = "_" + a2;
+                a1 = "_" + s1.charAt(i-1) + a1;
                 i--;
             }
         }

@@ -93,14 +93,14 @@ public class Basic {
             }
         }
 
-        m = opt[s1.length()-1][s2.length()-1];
+        m = opt[s1.length()][s2.length()];
     }
 
     public void findAlignments()
     {
         // top down pass
-        int i = opt.length-1;
-        int j = opt[0].length-1;
+        int i = s1.length();
+        int j = s2.length();
 
         while (i >= 1 && j >= 1)
         {

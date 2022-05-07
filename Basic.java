@@ -8,8 +8,10 @@ public class Basic {
     // constants
     private static int GAP_PENALTY = 30;
     // A C G T
-    private static int[][] MISMATCH_PENALTY = { { 0, 110, 48, 94 }, { 110, 0, 118, 48 }, { 48, 118, 0, 110 },
-            { 94, 48, 110, 0 } };
+    private static int[][] MISMATCH_PENALTY = { { 0, 110, 48, 94 }, 
+                                                { 110, 0, 118, 48 }, 
+                                                { 48, 118, 0, 110 },
+                                                { 94, 48, 110, 0 } };
     private static String SEQUENCE_INDEX = "ACGT";
 
     // instance variables
@@ -39,7 +41,7 @@ public class Basic {
 
         basic.writeOutput(outputPath, (float) totalTime, (float) totalUsage);
 
-        System.out.println("CSCI 570 Project " + basic.getSequence1() + " " + basic.getSequence2());
+        System.out.println("CSCI 570 Project " + basic.getSequence1() + " " + basic.getSequence2() + " " + totalUsage);
     }
 
     /**
@@ -51,7 +53,7 @@ public class Basic {
         a1 = "";
         a2 = "";
         m = 0;
-        opt = new int[s1.length()][s2.length()];
+        opt = new int[s1.length()+1][s2.length()+1];
     }
 
     /**
@@ -66,7 +68,7 @@ public class Basic {
         a2 = "";
         m = 0;
         generateSequences(input);
-        opt = new int[s1.length()][s2.length()];
+        opt = new int[s1.length()+1][s2.length()+1];
     }
 
     public void setOPT() {
@@ -83,26 +85,11 @@ public class Basic {
         // recurrence
         for (int i = 1; i < opt.length; i++) {
             for (int j = 1; j < opt[0].length; j++) {
-                /** 
-                // x_m is not matched
-                if (GAP_PENALTY + opt[i - 1][j] < MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i))][SEQUENCE_INDEX
-                .indexOf(s2.charAt(j))] + opt[i - 1][j - 1] && GAP_PENALTY + opt[i - 1][j] < GAP_PENALTY + opt[i][j - 1])
-                {
-                    a1 = a1.substring(0, i) + "_" + a1.substring(i);
-                }
-                // y_n is not matched
-                else if (GAP_PENALTY + opt[i][j - 1] < MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i))][SEQUENCE_INDEX
-                .indexOf(s2.charAt(j))] + opt[i - 1][j - 1] && GAP_PENALTY + opt[i][j - 1] < GAP_PENALTY + opt[i - 1][j])
-                {
-                    a2 = a2.substring(0, j) + "_" + a2.substring(j);
-                }
-                */
-
                 opt[i][j] = Math.min(
-                        Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i))][SEQUENCE_INDEX
-                                .indexOf(s2.charAt(j))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
+                        Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX
+                                .indexOf(s2.charAt(j-1))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
                         GAP_PENALTY + opt[i][j - 1]);
-                System.out.println(opt[i][j]);
+                System.out.println(i + " " + j + " " + opt[i][j]);
             }
         }
 
@@ -117,52 +104,49 @@ public class Basic {
 
         while (i >= 1 && j >= 1)
         {
-            // x_m
+            // x_m go horizontal
             if (opt[i-1][j] <= opt[i-1][j-1] && opt[i-1][j] <= opt[i][j-1])
             {
-                a1 = "_" + s1.charAt(i) + a1;
+                a1 = "_" + s1.charAt(i-1) + a1;
                 //a2 = s2.charAt(j) + a2;
                 i--;
             }
-            // y_n
+            // y_n go vertical
             else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
             {
                 //a1 = s1.charAt(i) + a1;
-                a2 = "_" + s2.charAt(j) + a2;
+                a2 = "_" + s2.charAt(j-1) + a2;
                 j--;
             }
-            // diagonal
+            // go diagonal
             else
             {
-                a1 = s1.charAt(i) + a1;
-                a2 = s2.charAt(j) + a2;
+                a1 = s1.charAt(i-1) + a1;
+                a2 = s2.charAt(j-1) + a2;
                 i--;
                 j--;
             }
         }
 
-        /**
-        for (int i = opt.length-1; i >= 1; i--)
+        // go down column
+        if (i == 0 && j > 0)
         {
-            for (int j = opt[0].length-1; j >= 1; j--)
+            while (j > 0)
             {
-                // x_m
-                if (opt[i-1][j] <= opt[i-1][j-1] && opt[i-1][j] <= opt[i][j-1])
-                {
-                    a1 = "_" + a1;
-                }
-                else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
-                {
-                    a2 = "_" + a2;
-                }
-                else
-                {
-                    a1 = s1.charAt(i) + a1;
-                    a2 = s2.charAt(j) + a2;
-                }
+                a2 = "_" + s2.charAt(j-1) + a2;
+                j--;
             }
         }
-        */
+
+        // go horizontally
+        else if (j == 0 && i > 0)
+        {
+            while (i > 0)
+            {
+                a1 = "_" + s1.charAt(i-1) + a1;
+                i--;
+            }
+        }
     }
 
     /**

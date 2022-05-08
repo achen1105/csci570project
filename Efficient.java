@@ -20,7 +20,7 @@ public class Efficient {
     private String a1; // alignment 1
     private String a2; // alignment 2
     private int m; // cost
-    private int[][] opt;
+    //private int[][] opt;
 
     public static void main(String[] args) {
         String inputPath = args[0];
@@ -31,8 +31,8 @@ public class Efficient {
         double beforeUsedMem = getMemoryInKB();
         double startTime = getTimeInMilliseconds();
 
-        efficient.setOPT();
-        efficient.findAlignments();
+        //efficient.setOPT();
+        //efficient.findAlignments();
 
         double afterUsedMem = getMemoryInKB();
         double endTime = getTimeInMilliseconds();
@@ -53,7 +53,7 @@ public class Efficient {
         a1 = "";
         a2 = "";
         m = 0;
-        opt = new int[s1.length()+1][s2.length()+1];
+        //opt = new int[s1.length()+1][s2.length()+1];
     }
 
     /**
@@ -68,89 +68,106 @@ public class Efficient {
         a2 = "";
         m = 0;
         generateSequences(input);
-        opt = new int[s1.length()+1][s2.length()+1];
+        //opt = new int[s1.length()+1][s2.length()+1];
     }
 
-    public void setOPT() {
-        // initialize row 0
-        for (int i1 = 0; i1 < opt[0].length; i1++) {
-            opt[0][i1] = i1 * GAP_PENALTY;
-        }
-
-        // initialize col 0
-        for (int j1 = 0; j1 < opt.length; j1++) {
-            opt[j1][0] = j1 * GAP_PENALTY;
-        }
-
-        // recurrence
-        for (int i = 1; i < opt.length; i++) {
-            for (int j = 1; j < opt[0].length; j++) {
-                opt[i][j] = Math.min(
-                        Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX
-                                .indexOf(s2.charAt(j-1))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
-                        GAP_PENALTY + opt[i][j - 1]);
-                //System.out.println(i + " " + j + " " + opt[i][j]);
-            }
-        }
-
-        m = opt[s1.length()][s2.length()];
-    }
-
-    public void findAlignments()
+    /**
+     * 
+     * @param x xL string until xMid (forwards) or xR string until xMid (backwards)
+     * @param y full y string (forwards for yL, backwards for yR)
+     */
+    public int[] setCost(String x, String y)
     {
-        // top down pass
-        int i = s1.length();
-        int j = s2.length();
+        // xL by Y, left column
+        int[] col1= new int[y.length() + 1];
+        // xL by Y, right column
+        int[] col2 = new int[y.length() + 1];
+        int index = 1;
 
-        // fixed only this part using https://www.geeksforgeeks.org/sequence-alignment-problem/
-        while (i >= 1 && j >= 1)
+        while (index <= x.length())
         {
-            // x_m go horizontal
-            if (opt[i-1][j] <= opt[i-1][j-1] && opt[i-1][j] <= opt[i][j-1])
+            // beginning column
+            if (index == 1)
             {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = "_" + a2;
-                i--;
+                for (int i1 = 0; i1 < col1.length; i1++)
+                {
+                    col1[i1] = i1 * GAP_PENALTY;
+                }
             }
-            // y_n go vertical
-            else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
+
+            // first value of second column
+            col2[0] = index * GAP_PENALTY;
+
+            // rest of values of second column
+            for (int j = 1; j < col2.length; j++)
             {
-                //a1 = s1.charAt(i) + a1;
-                a2 = s2.charAt(j-1) + a2;
-                a1 = "_" + a1;
-                j--;
+                col2[j] = Math.min(
+                        Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(index-1))][SEQUENCE_INDEX
+                                .indexOf(y.charAt(j-1))] + col1[j - 1], GAP_PENALTY + col1[j]),
+                        GAP_PENALTY + col2[j - 1]);
             }
-            // go diagonal
-            else
-            {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = s2.charAt(j-1) + a2;
-                i--;
-                j--;
-            }
+
+            index++;   
         }
 
-        // go down column
-        if (i == 0 && j > 0)
+        return col2;
+    }
+
+    public void divide2(String xL, String xR, String y)
+    {
+        // base cases
+        if (xL.length() == 1)
         {
-            while (j > 0)
+            
+        }
+        else
+        {
+            int[] colL = setCost(xL, s2);
+            int[] colR = setCost(xR, s2);
+            int min = colL[0] + colR[colR.length - 1];
+            int yMid = 0;
+
+            for (int i = 1; i < colL.length; i++)
             {
-                a2 = s2.charAt(j-1) + a2;
-                a1 = "_" + a1;
-                j--;
+                if (colL[i] + colR[colR.length-1-i] < min)
+                {
+                    min = colL[i] + colR[colR.length-1-i];
+                    yMid = i;
+                }
             }
+
+            String yL = y.substring(0, yMid);
+            String yR = reverseSubstring(y, yMid);
+
+            // divide the left side
+            divide2(xL.substring(0, xL.length()/2), reverseSubstring(xL, xL.length()/2), yL);
+            // divide the right side
+            divide2(xR.substring(0, xR.length()/2), reverseSubstring(xR, xR.length()/2), yR);
+        }
+    }
+
+    public String reverseSubstring(String str, int index)
+    {
+        String rev = "";
+
+        for (int i = str.length()-1; i >= index; i++)
+        {
+            rev = rev + str.charAt(i);
         }
 
-        // go horizontally
-        else if (j == 0 && i > 0)
-        {
-            while (i > 0)
-            {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = "_" + a2;
-                i--;
-            }
-        }
+        return rev;
+    }
+
+    public void runEfficient()
+    {
+        // beginning case
+        // floor of x/2
+        int xMid = s1.length()/2;
+        // substring is O(n) operation
+        String xL = s1.substring(0, xMid);
+        String xR = s1.substring(xMid);
+        String y = s2;
+        divide2(xL, xR, y);
     }
 
     /**

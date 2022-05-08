@@ -19,7 +19,6 @@ public class Efficient {
     private String s2; // sequence 2
     private String a1; // alignment 1
     private String a2; // alignment 2
-    private int m; // cost
     //private int[][] opt;
 
     public static void main(String[] args) {
@@ -34,14 +33,16 @@ public class Efficient {
         //efficient.setOPT();
         //efficient.findAlignments();
 
+        int cost = efficient.runEfficient();
+
         double afterUsedMem = getMemoryInKB();
         double endTime = getTimeInMilliseconds();
         double totalUsage =  afterUsedMem-beforeUsedMem;
         double totalTime =  endTime - startTime;
 
-        efficient.writeOutput(outputPath, (float) totalTime, (float) totalUsage);
+        efficient.writeOutput(outputPath, cost, (float) totalTime, (float) totalUsage);
 
-        //System.out.println("CSCI 570 Project " + basic.getSequence1() + " " + basic.getSequence2() + " " + totalUsage);
+        System.out.println("Efficient " + efficient.getSequence1() + " " + efficient.getSequence2() + " " + totalUsage);
     }
 
     /**
@@ -52,7 +53,6 @@ public class Efficient {
         s2 = "";
         a1 = "";
         a2 = "";
-        m = 0;
         //opt = new int[s1.length()+1][s2.length()+1];
     }
 
@@ -66,7 +66,6 @@ public class Efficient {
         s2 = "";
         a1 = "";
         a2 = "";
-        m = 0;
         generateSequences(input);
         //opt = new int[s1.length()+1][s2.length()+1];
     }
@@ -113,17 +112,23 @@ public class Efficient {
         return col2;
     }
 
-    public void divide2(String xL, String xR, String y)
+    public int divide2(String xL, String xR, String y)
     {
+        int cost = 0;
+
         // base cases
-        if (xL.length() == 1)
+        if (xL.length() <= 1 || xR.length() <= 1)
         {
-            
+            return 0;
+        }
+        else if (y.length() <= 1)
+        {
+            return 0;
         }
         else
         {
-            int[] colL = setCost(xL, s2);
-            int[] colR = setCost(xR, s2);
+            int[] colL = setCost(xL, y);
+            int[] colR = setCost(xR, y);
             int min = colL[0] + colR[colR.length - 1];
             int yMid = 0;
 
@@ -136,29 +141,38 @@ public class Efficient {
                 }
             }
 
-            String yL = y.substring(0, yMid);
-            String yR = reverseSubstring(y, yMid);
+            cost = cost + min;
+            String yL = "";
+            String yR = "";
+
+            System.out.print("Y length and yMid " + y.length() +  " " + yMid);
+
+            yL = y.substring(0, yMid-1);
+            yR = reverseSubstring(y, yMid-1);
 
             // divide the left side
-            divide2(xL.substring(0, xL.length()/2), reverseSubstring(xL, xL.length()/2), yL);
+            cost = cost + divide2(xL.substring(0, xL.length()/2), reverseSubstring(xL, xL.length()/2), yL);
             // divide the right side
-            divide2(xR.substring(0, xR.length()/2), reverseSubstring(xR, xR.length()/2), yR);
+            cost = cost + divide2(xR.substring(0, xR.length()/2), reverseSubstring(xR, xR.length()/2), yR);
         }
+
+        return cost;
     }
 
     public String reverseSubstring(String str, int index)
     {
         String rev = "";
 
-        for (int i = str.length()-1; i >= index; i++)
+        for (int i = str.length()-1; i >= index; i--)
         {
             rev = rev + str.charAt(i);
         }
-
+        System.out.println("rev " + rev);
         return rev;
+        
     }
 
-    public void runEfficient()
+    public int runEfficient()
     {
         // beginning case
         // floor of x/2
@@ -167,7 +181,7 @@ public class Efficient {
         String xL = s1.substring(0, xMid);
         String xR = s1.substring(xMid);
         String y = s2;
-        divide2(xL, xR, y);
+        return divide2(xL, xR, y);
     }
 
     /**
@@ -186,15 +200,6 @@ public class Efficient {
      */
     public String getSequence2() {
         return s2;
-    }
-
-    /**
-     * Returns cost
-     * 
-     * @return sum of gap and mismatch costs
-     */
-    public int getCost() {
-        return m;
     }
 
     /**
@@ -223,7 +228,7 @@ public class Efficient {
      * https://www.w3schools.com/java/java_files_create.asp
      * @param output the output file path
      */
-    private void writeOutput(String output, float time, float memory)
+    private void writeOutput(String output, int cost, float time, float memory)
     {
         try 
         {
@@ -238,7 +243,7 @@ public class Efficient {
             }
 
             FileWriter myWriter = new FileWriter(output);
-            myWriter.write(m + "\n");
+            myWriter.write(cost + "\n");
             myWriter.write(a1 + "\n");
             myWriter.write(a2 + "\n");
             myWriter.write(Float.toString(time) + "\n");

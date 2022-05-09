@@ -213,11 +213,11 @@ public class Basic {
             File myObj = new File(output);
             if (myObj.createNewFile()) 
             {
-              System.out.println("File created: " + myObj.getName());
+              //System.out.println("File created: " + myObj.getName());
             } 
             else
             {
-              System.out.println("File already exists.");
+              //System.out.println("File already exists.");
             }
 
             FileWriter myWriter = new FileWriter(output);
@@ -228,11 +228,11 @@ public class Basic {
             myWriter.write(Float.toString(memory));
 
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+            //System.out.println("Successfully wrote to the file.");
         } 
         catch (IOException e) 
         {
-            System.out.println("An error occurred.");
+            //System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
@@ -249,7 +249,7 @@ public class Basic {
         try {
             myScanner = new Scanner(myFile);
         } catch (FileNotFoundException e) {
-            System.out.println("File not found");
+            //System.out.println("File not found");
             return;
         }
 

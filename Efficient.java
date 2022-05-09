@@ -3,6 +3,7 @@ import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.Arrays;
 
 public class Efficient {
     // constants
@@ -69,7 +70,7 @@ public class Efficient {
      * @param x xL string until xMid (forwards) or xR string until xMid (backwards)
      * @param y full y string (forwards for yL, backwards for yR)
      */
-    public int[] setCost(String x, String y)
+    public int[] setCost(String x, String y, int[] startCol)
     {
         // xL by Y, left column
         int[] col1= new int[y.length() + 1];
@@ -79,13 +80,17 @@ public class Efficient {
 
         while (index <= x.length())
         {
-            // beginning column
-            if (index == 1)
+            // beginning column for x
+            if (index == 1 && startCol == null)
             {
                 for (int i1 = 0; i1 < col1.length; i1++)
                 {
                     col1[i1] = i1 * GAP_PENALTY;
                 }
+            }
+            else if (index == 1)
+            {
+                col1 = startCol;
             }
 
             // first value of second column
@@ -100,7 +105,13 @@ public class Efficient {
                         GAP_PENALTY + col2[j - 1]);
             }
 
-            index++;   
+            index++; 
+            
+            // move col2 to col1 for next iteration
+            for (int k = 0; k < col1.length; k++)
+            {
+                col1[k] = col2[k];
+            }
         }
 
         return col2;
@@ -110,42 +121,49 @@ public class Efficient {
     {
         int cost = 0;
 
+        int[] colL = setCost(xL, y, null); // end column of xL
+        int[] colR = setCost(xR, y, colL); // end column of xR
+        int min = colL[0] + colR[colR.length - 1];
+        int yMid = 0;
+
+        for (int i = 1; i < colL.length; i++)
+        {
+            if (colL[i] + colR[colR.length-1-i] < min)
+            {
+                min = colL[i] + colR[colR.length-1-i];
+                yMid = i;
+            }
+        }
+
+        cost = cost + min;
+        System.out.println(Arrays.toString(colL));
+        System.out.println(Arrays.toString(colR));
+        System.out.println("Cost first: " + cost);
+
         // base cases
         if (xL.length() <= 2)
         {
-            a1 = a1 + xL;
-            cost = cost + 18;
+            //a1 = a1 + xL;
+            System.out.println("xL here");
+            System.out.println("Cost: " + cost);
             return cost;
         }
         if (xR.length() <= 2)
         {
-            a1 = xR + a1;
-            cost = cost + 10;
+            //a1 = xR + a1;
+            System.out.println("xR here");
+            System.out.println("Cost: " + cost);
             return cost;
         }
         if (y.length() <= 2)
         {
-            a2 = a2 + y;
-            cost = cost + 9;
+            //a2 = a2 + y;
+            System.out.println("Y here");
+            System.out.println("Cost: " + cost);
             return cost;
         }
         else
         {
-            int[] colL = setCost(xL, y);
-            int[] colR = setCost(xR, y);
-            int min = colL[0] + colR[colR.length - 1];
-            int yMid = 0;
-
-            for (int i = 1; i < colL.length; i++)
-            {
-                if (colL[i] + colR[colR.length-1-i] < min)
-                {
-                    min = colL[i] + colR[colR.length-1-i];
-                    yMid = i;
-                }
-            }
-
-            //cost = cost + min;
             String yL = "";
             String yR = "";
 
@@ -156,12 +174,98 @@ public class Efficient {
 
             // divide the left side
             cost = cost + divide2(xL.substring(0, xL.length()/2), reverseSubstring(xL, xL.length()/2), yL);
+            System.out.println("Cost divide L: " + cost);
             // divide the right side
             cost = cost + divide2(xR.substring(0, xR.length()/2), reverseSubstring(xR, xR.length()/2), yR);
+            System.out.println("Cost divide R: " + cost);
         }
 
+        System.out.println("Cost: " + cost);
         return cost;
     }
+
+    /** 
+    public void findAlignments(String x, String y)
+    {
+        int[][] opt = new int [x.length()][y.length()];
+
+        // initialize row 0
+        for (int i1 = 0; i1 < opt[0].length; i1++) {
+            opt[0][i1] = i1 * GAP_PENALTY;
+        }
+
+        // initialize col 0
+        for (int j1 = 0; j1 < opt.length; j1++) {
+            opt[j1][0] = j1 * GAP_PENALTY;
+        }
+
+        // recurrence
+        for (int i = 1; i < opt.length; i++) {
+            for (int j = 1; j < opt[0].length; j++) {
+                opt[i][j] = Math.min(
+                        Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX
+                                .indexOf(s2.charAt(j-1))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
+                        GAP_PENALTY + opt[i][j - 1]);
+                //System.out.println(i + " " + j + " " + opt[i][j]);
+            }
+        }
+
+        m = opt[s1.length()][s2.length()];
+        // top down pass
+        int i = x.length();
+        int j = y.length();
+
+        // fixed only this part using https://www.geeksforgeeks.org/sequence-alignment-problem/
+        while (i >= 1 && j >= 1)
+        {
+            // x_m go horizontal
+            if (opt[i-1][j] <= opt[i-1][j-1] && opt[i-1][j] <= opt[i][j-1])
+            {
+                a1 = x.charAt(i-1) + a1;
+                a2 = "_" + a2;
+                i--;
+            }
+            // y_n go vertical
+            else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
+            {
+                //a1 = s1.charAt(i) + a1;
+                a2 = s2.charAt(j-1) + a2;
+                a1 = "_" + a1;
+                j--;
+            }
+            // go diagonal
+            else
+            {
+                a1 = s1.charAt(i-1) + a1;
+                a2 = s2.charAt(j-1) + a2;
+                i--;
+                j--;
+            }
+        }
+
+        // go down column
+        if (i == 0 && j > 0)
+        {
+            while (j > 0)
+            {
+                a2 = s2.charAt(j-1) + a2;
+                a1 = "_" + a1;
+                j--;
+            }
+        }
+
+        // go horizontally
+        else if (j == 0 && i > 0)
+        {
+            while (i > 0)
+            {
+                a1 = s1.charAt(i-1) + a1;
+                a2 = "_" + a2;
+                i--;
+            }
+        }
+    }
+    */
 
     public String reverseSubstring(String str, int index)
     {

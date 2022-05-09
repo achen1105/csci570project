@@ -41,6 +41,8 @@ public class Efficient {
         efficient.writeOutput(outputPath, cost, (float) totalTime, (float) totalUsage);
 
         System.out.println("Efficient " + efficient.getSequence1() + " " + efficient.getSequence2() + " " + totalUsage);
+        System.out.println(efficient.getCost("TATTATTA_TACGCTATTATACGCGAC_GCG_GACGCGTA_T_AC__G_CT_ATTA_T_AC__GCGAC_GC_GGAC_GCG", "_A_CA_CACT__G__A_C_TAC_TGACTG_GTGA__C_TACTGACTGGACTGACTACTGACTGGTGACTACT_GACTG_G"));
+        System.out.println(efficient.getCost("_______ACACACTG__ACTAC_TGACTG_GTGA__C_TACTGACTGGACTGACTACTGACTGGTGACTAC_TGACTG_G", "TATTATTATACGCTATTA_TACGCGAC_GCG_GACGCGTA_T_AC__G_CT_ATTA_T_AC__GCGAC_GCG_GAC_GCG"));
     }
 
     /**
@@ -263,6 +265,35 @@ public class Efficient {
     }
 
     public int getCost()
+    {
+        int cost = 0;
+
+        for (int i = 0; i < a1.length(); i++)
+        {
+            if (i < a2.length())
+            {
+                // alignment
+                if (a1.charAt(i)==a2.charAt(i))
+                {
+                    cost = cost + MISMATCH_PENALTY[0][0];
+                }
+                // gap
+                else if (a1.charAt(i) == '_' || a2.charAt(i) == '_')
+                {
+                    cost = cost + GAP_PENALTY;
+                }
+                // mismatch
+                else
+                {
+                    cost = cost + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(a1.charAt(i))][SEQUENCE_INDEX.indexOf(a2.charAt(i))];
+                }
+            }
+        }
+
+        return cost;
+    }
+
+    public int getCost(String a1, String a2)
     {
         int cost = 0;
 

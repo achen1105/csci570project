@@ -41,7 +41,7 @@ public class Basic {
 
         basic.writeOutput(outputPath, (float) totalTime, (float) totalUsage);
 
-        //System.out.println("CSCI 570 Project " + basic.getSequence1() + " " + basic.getSequence2() + " " + totalUsage);
+        //System.out.println("CSCI 570 Project " + basic.getSequence1() + " " + basic.getSequence2() + " " + totalUsage + " check output: " + basic.checkOutput());
     }
 
     /**
@@ -85,11 +85,19 @@ public class Basic {
         // recurrence
         for (int i = 1; i < opt.length; i++) {
             for (int j = 1; j < opt[0].length; j++) {
-                opt[i][j] = Math.min(
+                // match case
+                if (s1.charAt(i-1) == s2.charAt(j-1))
+                {
+                    opt[i][j] = opt[i-1][j-1];
+                }
+                else
+                {
+                    opt[i][j] = Math.min(
                         Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX
                                 .indexOf(s2.charAt(j-1))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
                         GAP_PENALTY + opt[i][j - 1]);
-                //System.out.println(i + " " + j + " " + opt[i][j]);
+                    //System.out.println(i + " " + j + " " + opt[i][j]);
+                }
             }
         }
 
@@ -105,33 +113,40 @@ public class Basic {
         // fixed only this part using https://www.geeksforgeeks.org/sequence-alignment-problem/
         while (i >= 1 && j >= 1)
         {
+            // matching pair
+            if (s1.charAt(i-1) == s2.charAt(j-1))
+            {
+                a1 = s1.charAt(i-1) + a1;
+                a2 = s2.charAt(j-1) + a2;
+                i--;
+                j--;
+            }
+            // go diagonal
+            else if (opt[i-1][j-1] + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX.indexOf(s2.charAt(j-1))] == opt[i][j])
+            {
+                a1 = s1.charAt(i-1) + a1;
+                a2 = s2.charAt(j-1) + a2;
+                i--;
+                j--;
+            }
             // x_m go horizontal
-            if (opt[i-1][j] <= opt[i-1][j-1] && opt[i-1][j] <= opt[i][j-1])
+            else if (opt[i-1][j] + GAP_PENALTY == opt[i][j])
             {
                 a1 = s1.charAt(i-1) + a1;
                 a2 = "_" + a2;
                 i--;
             }
             // y_n go vertical
-            else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
+            else if (opt[i][j-1] + GAP_PENALTY == opt[i][j])
             {
-                //a1 = s1.charAt(i) + a1;
                 a2 = s2.charAt(j-1) + a2;
                 a1 = "_" + a1;
-                j--;
-            }
-            // go diagonal
-            else
-            {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = s2.charAt(j-1) + a2;
-                i--;
                 j--;
             }
         }
 
         // go down column
-        if (i == 0 && j > 0)
+        if (j > 0)
         {
             while (j > 0)
             {
@@ -142,7 +157,7 @@ public class Basic {
         }
 
         // go horizontally
-        else if (j == 0 && i > 0)
+        if (i > 0)
         {
             while (i > 0)
             {
@@ -199,6 +214,35 @@ public class Basic {
      */
     private static double getTimeInMilliseconds() {
         return System.nanoTime() / 10e6;
+    }
+
+    private boolean checkOutput()
+    {
+        int cost = 0;
+
+        for (int i = 0; i < a1.length(); i++)
+        {
+            if (i < a2.length())
+            {
+                // alignment
+                if (a1.charAt(i)==a2.charAt(i))
+                {
+                    cost = cost + MISMATCH_PENALTY[0][0];
+                }
+                // gap
+                else if (a1.charAt(i) == '_' || a2.charAt(i) == '_')
+                {
+                    cost = cost + GAP_PENALTY;
+                }
+                // mismatch
+                else
+                {
+                    cost = cost + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(a1.charAt(i))][SEQUENCE_INDEX.indexOf(a2.charAt(i))];
+                }
+            }
+        }
+
+        return cost==m;
     }
 
     /**

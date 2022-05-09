@@ -32,6 +32,7 @@ public class Efficient {
         double startTime = getTimeInMilliseconds();
 
         efficient.runEfficient();
+
         int cost = efficient.getCost();
 
         double afterUsedMem = getMemoryInKB();
@@ -120,24 +121,26 @@ public class Efficient {
         return col2;
     }
 
-    public int divide(String x, String y)
+    public String[] divide(String x, String y)
     {
-        int cost = 0;
+        //int cost = 0;
+        String al1 = "";
+        String al2 = "";
 
         // base cases
         if (x.length() <= 2)
-        {
-            getAlignments(x, y);
+        { 
             System.out.println(x + " " + y);
-            System.out.println("Cost: " + cost);
-            return cost;
+            // System.out.println("Cost: " + cost);
+            return getAlignments(x, y);
+            //return cost;
         }
         if (y.length() <= 2)
         {
-            getAlignments(x, y);
             System.out.println(x + " " + y);
-            System.out.println("Cost: " + cost);
-            return cost;
+            // System.out.println("Cost: " + cost);
+            return getAlignments(x, y);
+            //return cost;
         }
         else
         {
@@ -155,10 +158,10 @@ public class Efficient {
                 }
             }
 
-            cost = cost + min;
+            //cost = cost + min;
             System.out.println(Arrays.toString(colL));
             System.out.println(Arrays.toString(colR));
-            System.out.println("Cost first: " + cost);
+            //System.out.println("Cost first: " + cost);
             String yL = "";
             String yR = y;
 
@@ -170,16 +173,18 @@ public class Efficient {
                 yR = y.substring(yMid-1);
             }
 
-            // divide the lower left side
-            cost = cost + divide(x.substring(0, x.length()/2), yL);
-            System.out.println("Cost divide L: " + cost);
-            // divide the upper right side
-            cost = cost + divide(x.substring(x.length()/2), yR);
-            System.out.println("Cost divide R: " + cost);
+            // divide the lower left side + divide the upper right side
+            // first alignment
+            al1 = divide(x.substring(0, x.length()/2), yL)[0] + divide(x.substring(x.length()/2), yR)[0];
+            System.out.println("Cost divide L: " + al1);
+            
+            // second alignment
+            al2 = divide(x.substring(0, x.length()/2), yL)[1] + divide(x.substring(x.length()/2), yR)[1];
+            System.out.println("Cost divide R: " + al2);
         }
 
-        System.out.println("Cost: " + cost);
-        return cost;
+        //System.out.println("Cost: " + cost);
+        return new String[]{al1, al2};
     }
 
     public String reverseSubstring(String str, int index)
@@ -225,8 +230,10 @@ public class Efficient {
     }
 
     // basic version for base cases
-    public void getAlignments(String x, String y)
+    public String[] getAlignments(String x, String y)
     {
+        String align1 = "";
+        String align2 = "";
         int[][] opt = new int[x.length()+1][y.length()+1];
         // initialize row 0
         for (int i1 = 0; i1 < opt[0].length; i1++) {
@@ -270,8 +277,8 @@ public class Efficient {
             // matching pair
             if (x.charAt(i-1) == y.charAt(j-1))
             {
-                a1 = x.charAt(i-1) + a1;
-                a2 = y.charAt(j-1) + a2;
+                align1 = x.charAt(i-1) + align1;
+                align2 = y.charAt(j-1) + align2;
                 i--;
                 j--;
                 System.out.println("here1 " + i + " " + j);
@@ -279,8 +286,8 @@ public class Efficient {
             // go diagonal
             else if (opt[i-1][j-1] + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(i-1))][SEQUENCE_INDEX.indexOf(y.charAt(j-1))] == opt[i][j])
             {
-                a1 = x.charAt(i-1) + a1;
-                a2 = y.charAt(j-1) + a2;
+                align1 = x.charAt(i-1) + align1;
+                align2 = y.charAt(j-1) + align2;
                 i--;
                 j--;
                 System.out.println("here2 " + i + " " + j);
@@ -288,16 +295,16 @@ public class Efficient {
             // x_m go horizontal
             else if (opt[i-1][j] + GAP_PENALTY == opt[i][j])
             {
-                a1 = x.charAt(i-1) + a1;
-                a2 = "_" + a2;
+                align1 = x.charAt(i-1) + align1;
+                align2 = "_" + align2;
                 i--;
                 System.out.println("here3 " + i + " " + j);
             }
             // y_n go vertical
             else if (opt[i][j-1] + GAP_PENALTY == opt[i][j])
             {
-                a2 = y.charAt(j-1) + a2;
-                a1 = "_" + a1;
+                align2 = y.charAt(j-1) + align2;
+                align1 = "_" + align1;
                 j--;
                 System.out.println("here4 " + i + " " + j);
             }
@@ -314,8 +321,8 @@ public class Efficient {
         {
             while (j > 0)
             {
-                a2 = y.charAt(j-1) + a2;
-                a1 = "_" + a1;
+                align2 = y.charAt(j-1) + align2;
+                align1 = "_" + align1;
                 j--;
                 System.out.println("here5 " + i + " " + j);
             }
@@ -326,15 +333,17 @@ public class Efficient {
         {
             while (i > 0)
             {
-                a1 = x.charAt(i-1) + a1;
-                a2 = "_" + a2;
+                align1 = x.charAt(i-1) + align1;
+                align2 = "_" + align2;
                 i--;
                 System.out.println("here6 " + i + " " + j);
             }
         }
+
+        return new String[]{align1, align2};
     }
 
-    public int runEfficient()
+    public void runEfficient()
     {
         // beginning case
         // floor of x/2
@@ -345,7 +354,10 @@ public class Efficient {
         String x = s1;
         String y = s2;
         //return divide2(xL, xR, y);
-        return divide(x, y);
+        //divide(x, y);
+        String[] alignments = divide(x,y);
+        a1 = alignments[0];
+        a2 = alignments[1];
     }
 
     /**

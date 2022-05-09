@@ -4,8 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
-import java.util.Arrays;
-
 public class Efficient {
     // constants
     private static int GAP_PENALTY = 30;
@@ -42,7 +40,7 @@ public class Efficient {
 
         efficient.writeOutput(outputPath, cost, (float) totalTime, (float) totalUsage);
 
-        System.out.println("Efficient " + efficient.getSequence1() + " " + efficient.getSequence2() + " " + totalUsage);
+        //System.out.println("Efficient " + efficient.getSequence1() + " " + efficient.getSequence2() + " " + totalUsage);
     }
 
     /**
@@ -130,21 +128,23 @@ public class Efficient {
         // base cases
         if (x.length() <= 2)
         { 
-            System.out.println(x + " " + y);
+            //System.out.println(x + " " + y);
             // System.out.println("Cost: " + cost);
-            String[] temp = getAlignments(x, y);
-            System.out.println("end of divide base case 1" + Arrays.toString(temp));
-            return temp;
+            //String[] temp = getAlignments(x, y);
+            //System.out.println("end of divide base case 1" + Arrays.toString(temp));
+            //return temp;
             //return cost;
+            return getAlignments(x, y);
         }
         else if (y.length() <= 2)
         {
-            System.out.println(x + " " + y);
+            //System.out.println(x + " " + y);
             // System.out.println("Cost: " + cost);
-            String[] temp = getAlignments(x, y);
-            System.out.println("end of divide base case 2" + Arrays.toString(temp));
-            return temp;
+            //String[] temp = getAlignments(x, y);
+            //System.out.println("end of divide base case 2" + Arrays.toString(temp));
+            //return temp;
             //return cost;
+            return getAlignments(x, y);
         }
         else
         {
@@ -163,13 +163,13 @@ public class Efficient {
             }
 
             //cost = cost + min;
-            System.out.println(Arrays.toString(colL));
-            System.out.println(Arrays.toString(colR));
+            //System.out.println(Arrays.toString(colL));
+            //System.out.println(Arrays.toString(colR));
             //System.out.println("Cost first: " + cost);
             String yL = "";
             String yR = y;
 
-            System.out.println("Y length and yMid " + y.length() +  " " + yMid);
+            //System.out.println("Y length and yMid " + y.length() +  " " + yMid);
 
             if (yMid >= 1)
             {
@@ -177,20 +177,24 @@ public class Efficient {
                 yR = y.substring(yMid);
             }
 
-            // divide the lower left side + divide the upper right side
+            // divide the lower left side
+            String[] tempLower = divide(x.substring(0, x.length()/2), yL);
+            String[] tempUpper = divide(x.substring(x.length()/2), yR);
+            // divide the upper right side
             // first alignment
-            al1 = divide(x.substring(0, x.length()/2), yL)[0] + divide(x.substring(x.length()/2), yR)[0];
-            System.out.println("ALIGNMENT 1: " + al1);
+            al1 =  tempLower[0] + tempUpper[0];
+            //System.out.println("ALIGNMENT 1: " + al1);
             
             // second alignment
-            al2 = divide(x.substring(0, x.length()/2), yL)[1] + divide(x.substring(x.length()/2), yR)[1];
-            System.out.println("ALIGNMENT 2: " + al2);
+            al2 = tempLower[1] + tempUpper[1];
+            //System.out.println("ALIGNMENT 2: " + al2);
         }
 
         //System.out.println("Cost: " + cost);
-        String[] temp = new String[]{al1, al2};
-        System.out.println("end of divide method, alignments: " + Arrays.toString(temp));
-        return temp;
+        //String[] temp = new String[]{al1, al2};
+        //System.out.println("end of divide method, alignments: " + Arrays.toString(temp));
+        //return temp;
+        return new String[]{al1, al2};
     }
 
     public String reverseSubstring(String str, int index)
@@ -201,7 +205,7 @@ public class Efficient {
         {
             rev = rev + str.charAt(i);
         }
-        System.out.println("rev " + rev);
+        //System.out.println("rev " + rev);
         return rev;
         
     }
@@ -238,20 +242,20 @@ public class Efficient {
     // basic version for base cases
     public String[] getAlignments(String x, String y)
     {
-        System.out.println("START ALIGNMENT " + x + " " + y);
+        //System.out.println("START ALIGNMENT " + x + " " + y);
         String align1 = "";
         String align2 = "";
         int[][] opt = new int[x.length()+1][y.length()+1];
         // initialize row 0
         for (int i1 = 0; i1 < opt[0].length; i1++) {
             opt[0][i1] = i1 * GAP_PENALTY;
-            System.out.println(0 + " " + i1 + " " + opt[0][i1]);
+            //System.out.println(0 + " " + i1 + " " + opt[0][i1]);
         }
 
         // initialize col 0
         for (int j1 = 0; j1 < opt.length; j1++) {
             opt[j1][0] = j1 * GAP_PENALTY;
-            System.out.println(j1 + " " + 0 + " " + opt[j1][0]);
+            //System.out.println(j1 + " " + 0 + " " + opt[j1][0]);
         }
 
         // recurrence
@@ -261,7 +265,7 @@ public class Efficient {
                 if (x.charAt(i2-1) == y.charAt(j2-1))
                 {
                     opt[i2][j2] = opt[i2-1][j2-1];
-                    System.out.println(i2 + " " + j2 + " " + opt[i2][j2]);
+                    //System.out.println(i2 + " " + j2 + " " + opt[i2][j2]);
                 }
                 else
                 {
@@ -269,7 +273,7 @@ public class Efficient {
                         Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(i2-1))][SEQUENCE_INDEX
                                 .indexOf(y.charAt(j2-1))] + opt[i2 - 1][j2 - 1], GAP_PENALTY + opt[i2 - 1][j2]),
                         GAP_PENALTY + opt[i2][j2 - 1]);
-                    System.out.println(i2 + " " + j2 + " " + opt[i2][j2]);
+                    //System.out.println(i2 + " " + j2 + " " + opt[i2][j2]);
                 }
             }
         }
@@ -288,7 +292,7 @@ public class Efficient {
                 align2 = y.charAt(j-1) + align2;
                 i--;
                 j--;
-                System.out.println("here1 " + i + " " + j);
+                //System.out.println("here1 " + i + " " + j);
             }
             // go diagonal
             else if (opt[i-1][j-1] + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(i-1))][SEQUENCE_INDEX.indexOf(y.charAt(j-1))] == opt[i][j])
@@ -297,7 +301,7 @@ public class Efficient {
                 align2 = y.charAt(j-1) + align2;
                 i--;
                 j--;
-                System.out.println("here2 " + i + " " + j);
+                //System.out.println("here2 " + i + " " + j);
             }
             // x_m go horizontal
             else if (opt[i-1][j] + GAP_PENALTY == opt[i][j])
@@ -305,7 +309,7 @@ public class Efficient {
                 align1 = x.charAt(i-1) + align1;
                 align2 = "_" + align2;
                 i--;
-                System.out.println("here3 " + i + " " + j);
+                //System.out.println("here3 " + i + " " + j);
             }
             // y_n go vertical
             else if (opt[i][j-1] + GAP_PENALTY == opt[i][j])
@@ -313,7 +317,7 @@ public class Efficient {
                 align2 = y.charAt(j-1) + align2;
                 align1 = "_" + align1;
                 j--;
-                System.out.println("here4 " + i + " " + j);
+                //System.out.println("here4 " + i + " " + j);
             }
             /** 
             else
@@ -331,7 +335,7 @@ public class Efficient {
                 align2 = y.charAt(j-1) + align2;
                 align1 = "_" + align1;
                 j--;
-                System.out.println("here5 " + i + " " + j);
+                //System.out.println("here5 " + i + " " + j);
             }
         }
 
@@ -343,7 +347,7 @@ public class Efficient {
                 align1 = x.charAt(i-1) + align1;
                 align2 = "_" + align2;
                 i--;
-                System.out.println("here6 " + i + " " + j);
+                //System.out.println("here6 " + i + " " + j);
             }
         }
 
@@ -418,11 +422,11 @@ public class Efficient {
             File myObj = new File(output);
             if (myObj.createNewFile()) 
             {
-              System.out.println("File created: " + myObj.getName());
+              //System.out.println("File created: " + myObj.getName());
             } 
             else
             {
-              System.out.println("File already exists.");
+              //System.out.println("File already exists.");
             }
 
             FileWriter myWriter = new FileWriter(output);
@@ -433,11 +437,11 @@ public class Efficient {
             myWriter.write(Float.toString(memory));
 
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+            //System.out.println("Successfully wrote to the file.");
         } 
         catch (IOException e) 
         {
-            System.out.println("An error occurred.");
+            //System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
@@ -454,7 +458,7 @@ public class Efficient {
         try {
             myScanner = new Scanner(myFile);
         } catch (FileNotFoundException e) {
-            System.out.println("File not found");
+            //System.out.println("File not found");
             return;
         }
 

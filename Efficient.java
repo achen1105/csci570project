@@ -19,7 +19,6 @@ public class Efficient {
     private String s2; // sequence 2
     private String a1; // alignment 1
     private String a2; // alignment 2
-    //private int[][] opt;
 
     public static void main(String[] args) {
         String inputPath = args[0];
@@ -29,9 +28,6 @@ public class Efficient {
         // From instructions
         double beforeUsedMem = getMemoryInKB();
         double startTime = getTimeInMilliseconds();
-
-        //efficient.setOPT();
-        //efficient.findAlignments();
 
         int cost = efficient.runEfficient();
 
@@ -53,7 +49,6 @@ public class Efficient {
         s2 = "";
         a1 = "";
         a2 = "";
-        //opt = new int[s1.length()+1][s2.length()+1];
     }
 
     /**
@@ -67,7 +62,6 @@ public class Efficient {
         a1 = "";
         a2 = "";
         generateSequences(input);
-        //opt = new int[s1.length()+1][s2.length()+1];
     }
 
     /**
@@ -117,13 +111,23 @@ public class Efficient {
         int cost = 0;
 
         // base cases
-        if (xL.length() <= 1 || xR.length() <= 1)
+        if (xL.length() <= 2)
         {
-            return 0;
+            a1 = a1 + xL;
+            cost = cost + 18;
+            return cost;
         }
-        else if (y.length() <= 1)
+        if (xR.length() <= 2)
         {
-            return 0;
+            a1 = xR + a1;
+            cost = cost + 10;
+            return cost;
+        }
+        if (y.length() <= 2)
+        {
+            a2 = a2 + y;
+            cost = cost + 9;
+            return cost;
         }
         else
         {
@@ -141,7 +145,7 @@ public class Efficient {
                 }
             }
 
-            cost = cost + min;
+            //cost = cost + min;
             String yL = "";
             String yR = "";
 

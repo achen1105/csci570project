@@ -30,7 +30,8 @@ public class Efficient {
         double beforeUsedMem = getMemoryInKB();
         double startTime = getTimeInMilliseconds();
 
-        int cost = efficient.runEfficient();
+        efficient.runEfficient();
+        int cost = efficient.getCost();
 
         double afterUsedMem = getMemoryInKB();
         double endTime = getTimeInMilliseconds();
@@ -70,7 +71,7 @@ public class Efficient {
      * @param x xL string until xMid (forwards) or xR string until xMid (backwards)
      * @param y full y string (forwards for yL, backwards for yR)
      */
-    public int[] setCost(String x, String y, int[] startCol)
+    public int[] setCost(String x, String y)
     {
         // xL by Y, left column
         int[] col1= new int[y.length() + 1];
@@ -81,16 +82,12 @@ public class Efficient {
         while (index <= x.length())
         {
             // beginning column for x
-            if (index == 1 && startCol == null)
+            if (index == 1)
             {
                 for (int i1 = 0; i1 < col1.length; i1++)
                 {
                     col1[i1] = i1 * GAP_PENALTY;
                 }
-            }
-            else if (index == 1)
-            {
-                col1 = startCol;
             }
 
             // first value of second column
@@ -117,12 +114,77 @@ public class Efficient {
         return col2;
     }
 
+    public int divide(String x, String y)
+    {
+        int cost = 0;
+
+        if (x.length() == 0 || y.length() == 0)
+        {
+            getAlignments(x, y);
+            return cost;
+        }
+
+        // base cases
+        if (x.length() <= 2)
+        {
+            getAlignments(x, y);
+            System.out.println(x + " " + y);
+            System.out.println("Cost: " + cost);
+            return cost;
+        }
+        if (y.length() <= 2)
+        {
+            getAlignments(x, y);
+            System.out.println(x + " " + y);
+            System.out.println("Cost: " + cost);
+            return cost;
+        }
+        else
+        {
+            int[] colL = setCost(x.substring(0, x.length()/2), y); // end column of xL
+            int[] colR = setCost(reverseSubstring(x, x.length()/2), reverseSubstring(y, 0)); // end column of xR
+            int min = colL[0] + colR[colR.length - 1];
+            int yMid = 0;
+
+            for (int i = 1; i < colL.length; i++)
+            {
+                if (colL[i] + colR[colR.length-1-i] < min)
+                {
+                    min = colL[i] + colR[colR.length-1-i];
+                    yMid = i;
+                }
+            }
+
+            cost = cost + min;
+            System.out.println(Arrays.toString(colL));
+            System.out.println(Arrays.toString(colR));
+            System.out.println("Cost first: " + cost);
+            String yL = "";
+            String yR = "";
+
+            System.out.print("Y length and yMid " + y.length() +  " " + yMid);
+
+            yL = y.substring(0, yMid-1);
+            yR = reverseSubstring(y, yMid-1);
+
+            // divide the left side
+            cost = cost + divide(x.substring(0, x.length()/2), yL);
+            System.out.println("Cost divide L: " + cost);
+            // divide the right side
+            cost = cost + divide(reverseSubstring(x, x.length()/2), yR);
+            System.out.println("Cost divide R: " + cost);
+        }
+
+        System.out.println("Cost: " + cost);
+        return cost;
+    }
+
     public int divide2(String xL, String xR, String y)
     {
         int cost = 0;
 
-        int[] colL = setCost(xL, y, null); // end column of xL
-        int[] colR = setCost(xR, y, colL); // end column of xR
+        int[] colL = setCost(xL, y); // end column of xL
+        int[] colR = setCost(xR, y); // end column of xR
         int min = colL[0] + colR[colR.length - 1];
         int yMid = 0;
 
@@ -140,27 +202,33 @@ public class Efficient {
         System.out.println(Arrays.toString(colR));
         System.out.println("Cost first: " + cost);
 
+        if (xL.length() == 0 || xR.length() == 0 || y.length() == 0)
+        {
+            return cost;
+        }
+
         // base cases
         if (xL.length() <= 2)
         {
-            //a1 = a1 + xL;
-            System.out.println("xL here");
+            getAlignments(xL, y);
+            System.out.println(xL + " " + y);
             System.out.println("Cost: " + cost);
-            return cost;
+            //return cost;
         }
         if (xR.length() <= 2)
         {
-            //a1 = xR + a1;
-            System.out.println("xR here");
+            getAlignments(xR, y);
+            System.out.println(xR + " " + y);
             System.out.println("Cost: " + cost);
-            return cost;
+            //return cost;
         }
         if (y.length() <= 2)
         {
-            //a2 = a2 + y;
-            System.out.println("Y here");
+            getAlignments(xL, y);
+            getAlignments(xR, y);
+            System.out.println(xL + " " + xR + " " + y);
             System.out.println("Cost: " + cost);
-            return cost;
+            //return cost;
         }
         else
         {
@@ -184,11 +252,52 @@ public class Efficient {
         return cost;
     }
 
-    /** 
-    public void findAlignments(String x, String y)
+    public String reverseSubstring(String str, int index)
     {
-        int[][] opt = new int [x.length()][y.length()];
+        String rev = "";
 
+        for (int i = str.length()-1; i >= index; i--)
+        {
+            rev = rev + str.charAt(i);
+        }
+        System.out.println("rev " + rev);
+        return rev;
+        
+    }
+
+    public int getCost()
+    {
+        int cost = 0;
+
+        for (int i = 0; i < a1.length(); i++)
+        {
+            if (i < a2.length())
+            {
+                // alignment
+                if (a1.charAt(i)==a2.charAt(i))
+                {
+                    cost = cost + MISMATCH_PENALTY[0][0];
+                }
+                // gap
+                else if (a1.charAt(i) == '_' || a2.charAt(i) == '_')
+                {
+                    cost = cost + GAP_PENALTY;
+                }
+                // mismatch
+                else
+                {
+                    cost = cost + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(a1.charAt(i))][SEQUENCE_INDEX.indexOf(a2.charAt(i))];
+                }
+            }
+        }
+
+        return cost;
+    }
+
+    // basic version for base cases
+    public void getAlignments(String x, String y)
+    {
+        int[][] opt = new int[x.length()+1][y.length()+1];
         // initialize row 0
         for (int i1 = 0; i1 < opt[0].length; i1++) {
             opt[0][i1] = i1 * GAP_PENALTY;
@@ -200,17 +309,16 @@ public class Efficient {
         }
 
         // recurrence
-        for (int i = 1; i < opt.length; i++) {
-            for (int j = 1; j < opt[0].length; j++) {
-                opt[i][j] = Math.min(
-                        Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX
-                                .indexOf(s2.charAt(j-1))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
-                        GAP_PENALTY + opt[i][j - 1]);
-                //System.out.println(i + " " + j + " " + opt[i][j]);
+        for (int i2 = 1; i2 < opt.length; i2++) {
+            for (int j2 = 1; j2 < opt[0].length; j2++) {
+                opt[i2][j2] = Math.min(
+                        Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(i2-1))][SEQUENCE_INDEX
+                                .indexOf(y.charAt(j2-1))] + opt[i2 - 1][j2 - 1], GAP_PENALTY + opt[i2 - 1][j2]),
+                        GAP_PENALTY + opt[i2][j2 - 1]);
+                System.out.println(i2 + " " + j2 + " " + opt[i2][j2]);
             }
         }
 
-        m = opt[s1.length()][s2.length()];
         // top down pass
         int i = x.length();
         int j = y.length();
@@ -229,15 +337,15 @@ public class Efficient {
             else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
             {
                 //a1 = s1.charAt(i) + a1;
-                a2 = s2.charAt(j-1) + a2;
+                a2 = y.charAt(j-1) + a2;
                 a1 = "_" + a1;
                 j--;
             }
             // go diagonal
             else
             {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = s2.charAt(j-1) + a2;
+                a1 = x.charAt(i-1) + a1;
+                a2 = y.charAt(j-1) + a2;
                 i--;
                 j--;
             }
@@ -248,7 +356,7 @@ public class Efficient {
         {
             while (j > 0)
             {
-                a2 = s2.charAt(j-1) + a2;
+                a2 = y.charAt(j-1) + a2;
                 a1 = "_" + a1;
                 j--;
             }
@@ -259,25 +367,11 @@ public class Efficient {
         {
             while (i > 0)
             {
-                a1 = s1.charAt(i-1) + a1;
+                a1 = x.charAt(i-1) + a1;
                 a2 = "_" + a2;
                 i--;
             }
         }
-    }
-    */
-
-    public String reverseSubstring(String str, int index)
-    {
-        String rev = "";
-
-        for (int i = str.length()-1; i >= index; i--)
-        {
-            rev = rev + str.charAt(i);
-        }
-        System.out.println("rev " + rev);
-        return rev;
-        
     }
 
     public int runEfficient()
@@ -288,8 +382,10 @@ public class Efficient {
         // substring is O(n) operation
         String xL = s1.substring(0, xMid);
         String xR = s1.substring(xMid);
+        String x = s1;
         String y = s2;
-        return divide2(xL, xR, y);
+        //return divide2(xL, xR, y);
+        return divide(x, y);
     }
 
     /**

@@ -25,6 +25,8 @@ public class Efficient {
         String outputPath = args[1];
         Efficient efficient = new Efficient(inputPath);
 
+        System.gc();
+
         // From instructions
         double beforeUsedMem = getMemoryInKB();
         double startTime = getTimeInMilliseconds();
@@ -194,6 +196,7 @@ public class Efficient {
         //String[] temp = new String[]{al1, al2};
         //System.out.println("end of divide method, alignments: " + Arrays.toString(temp));
         //return temp;
+        System.gc();
         return new String[]{al1, al2};
     }
 

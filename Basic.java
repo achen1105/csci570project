@@ -27,6 +27,7 @@ public class Basic {
         String outputPath = args[1];
         Basic basic = new Basic(inputPath);
 
+        System.gc();
         // From instructions
         double beforeUsedMem = getMemoryInKB();
         double startTime = getTimeInMilliseconds();
@@ -105,6 +106,7 @@ public class Basic {
         }
 
         m = opt[s1.length()][s2.length()];
+        System.gc();
     }
 
     public void findAlignments()

@@ -4,8 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
-import javax.lang.model.util.ElementScanner6;
-
 import java.util.Arrays;
 
 public class Efficient {

@@ -41,8 +41,6 @@ public class Efficient {
         efficient.writeOutput(outputPath, cost, (float) totalTime, (float) totalUsage);
 
         System.out.println("Efficient " + efficient.getSequence1() + " " + efficient.getSequence2() + " " + totalUsage);
-        System.out.println(efficient.getCost("TATTATTA_TACGCTATTATACGCGAC_GCG_GACGCGTA_T_AC__G_CT_ATTA_T_AC__GCGAC_GC_GGAC_GCG", "_A_CA_CACT__G__A_C_TAC_TGACTG_GTGA__C_TACTGACTGGACTGACTACTGACTGGTGACTACT_GACTG_G"));
-        System.out.println(efficient.getCost("_______ACACACTG__ACTAC_TGACTG_GTGA__C_TACTGACTGGACTGACTACTGACTGGTGACTAC_TGACTG_G", "TATTATTATACGCTATTA_TACGCGAC_GCG_GACGCGTA_T_AC__G_CT_ATTA_T_AC__GCGAC_GCG_GAC_GCG"));
     }
 
     /**
@@ -293,35 +291,6 @@ public class Efficient {
         return cost;
     }
 
-    public int getCost(String a1, String a2)
-    {
-        int cost = 0;
-
-        for (int i = 0; i < a1.length(); i++)
-        {
-            if (i < a2.length())
-            {
-                // alignment
-                if (a1.charAt(i)==a2.charAt(i))
-                {
-                    cost = cost + MISMATCH_PENALTY[0][0];
-                }
-                // gap
-                else if (a1.charAt(i) == '_' || a2.charAt(i) == '_')
-                {
-                    cost = cost + GAP_PENALTY;
-                }
-                // mismatch
-                else
-                {
-                    cost = cost + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(a1.charAt(i))][SEQUENCE_INDEX.indexOf(a2.charAt(i))];
-                }
-            }
-        }
-
-        return cost;
-    }
-
     // basic version for base cases
     public void getAlignments(String x, String y)
     {
@@ -339,11 +308,19 @@ public class Efficient {
         // recurrence
         for (int i2 = 1; i2 < opt.length; i2++) {
             for (int j2 = 1; j2 < opt[0].length; j2++) {
-                opt[i2][j2] = Math.min(
+                // match case
+                if (s1.charAt(i2-1) == s2.charAt(j2-1))
+                {
+                    opt[i2][j2] = opt[i2-1][j2-1];
+                }
+                else
+                {
+                    opt[i2][j2] = Math.min(
                         Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(i2-1))][SEQUENCE_INDEX
                                 .indexOf(y.charAt(j2-1))] + opt[i2 - 1][j2 - 1], GAP_PENALTY + opt[i2 - 1][j2]),
                         GAP_PENALTY + opt[i2][j2 - 1]);
-                System.out.println(i2 + " " + j2 + " " + opt[i2][j2]);
+                    System.out.println(i2 + " " + j2 + " " + opt[i2][j2]);
+                }
             }
         }
 
@@ -354,33 +331,41 @@ public class Efficient {
         // fixed only this part using https://www.geeksforgeeks.org/sequence-alignment-problem/
         while (i >= 1 && j >= 1)
         {
+            // matching pair
+            if (x.charAt(i-1) == y.charAt(j-1))
+            {
+                a1 = x.charAt(i-1) + a1;
+                a2 = y.charAt(j-1) + a2;
+                i--;
+                j--;
+            }
+            // go diagonal
+            else if (opt[i-1][j-1] + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(i-1))][SEQUENCE_INDEX.indexOf(y.charAt(j-1))] == opt[i][j])
+            {
+                a1 = x.charAt(i-1) + a1;
+                a2 = y.charAt(j-1) + a2;
+                i--;
+                j--;
+            }
             // x_m go horizontal
-            if (opt[i-1][j] <= opt[i-1][j-1] && opt[i-1][j] <= opt[i][j-1])
+            else if (opt[i-1][j] + GAP_PENALTY == opt[i][j])
             {
                 a1 = x.charAt(i-1) + a1;
                 a2 = "_" + a2;
                 i--;
             }
             // y_n go vertical
-            else if (opt[i][j-1] <= opt[i-1][j-1] && opt[i][j-1] <= opt[i-1][j])
+            else if (opt[i][j-1] + GAP_PENALTY == opt[i][j])
             {
-                //a1 = s1.charAt(i) + a1;
                 a2 = y.charAt(j-1) + a2;
                 a1 = "_" + a1;
                 j--;
             }
-            // go diagonal
-            else
-            {
-                a1 = x.charAt(i-1) + a1;
-                a2 = y.charAt(j-1) + a2;
-                i--;
-                j--;
-            }
+            
         }
 
         // go down column
-        if (i == 0 && j > 0)
+        if (j > 0)
         {
             while (j > 0)
             {
@@ -391,7 +376,7 @@ public class Efficient {
         }
 
         // go horizontally
-        else if (j == 0 && i > 0)
+        if (i > 0)
         {
             while (i > 0)
             {

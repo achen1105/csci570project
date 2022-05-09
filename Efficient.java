@@ -118,12 +118,6 @@ public class Efficient {
     {
         int cost = 0;
 
-        if (x.length() == 0 || y.length() == 0)
-        {
-            getAlignments(x, y);
-            return cost;
-        }
-
         // base cases
         if (x.length() <= 2)
         {
@@ -160,18 +154,21 @@ public class Efficient {
             System.out.println(Arrays.toString(colR));
             System.out.println("Cost first: " + cost);
             String yL = "";
-            String yR = "";
+            String yR = y;
 
             System.out.print("Y length and yMid " + y.length() +  " " + yMid);
 
-            yL = y.substring(0, yMid-1);
-            yR = reverseSubstring(y, yMid-1);
+            if (yMid >= 1)
+            {
+                yL = y.substring(0, yMid-1);
+                yR = y.substring(yMid-1);
+            }
 
-            // divide the left side
+            // divide the lower left side
             cost = cost + divide(x.substring(0, x.length()/2), yL);
             System.out.println("Cost divide L: " + cost);
-            // divide the right side
-            cost = cost + divide(reverseSubstring(x, x.length()/2), yR);
+            // divide the upper right side
+            cost = cost + divide(x.substring(x.length()/2), yR);
             System.out.println("Cost divide R: " + cost);
         }
 

@@ -75,11 +75,13 @@ public class Basic {
         // initialize row 0
         for (int i1 = 0; i1 < opt[0].length; i1++) {
             opt[0][i1] = i1 * GAP_PENALTY;
+            //System.out.println(0 + " " + i1 + " " + opt[0][i1]);
         }
 
         // initialize col 0
         for (int j1 = 0; j1 < opt.length; j1++) {
             opt[j1][0] = j1 * GAP_PENALTY;
+            //System.out.println(j1 + " " + 0 + " " + opt[j1][0]);
         }
 
         // recurrence
@@ -89,6 +91,7 @@ public class Basic {
                 if (s1.charAt(i-1) == s2.charAt(j-1))
                 {
                     opt[i][j] = opt[i-1][j-1];
+                    //System.out.println(i + " " + j + " " + opt[i][j]);
                 }
                 else
                 {

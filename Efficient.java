@@ -3,6 +3,9 @@ import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+
+import javax.lang.model.util.ElementScanner6;
+
 import java.util.Arrays;
 
 public class Efficient {
@@ -96,6 +99,11 @@ public class Efficient {
             // rest of values of second column
             for (int j = 1; j < col2.length; j++)
             {
+                // match case
+                if (x.charAt(index-1) == y.charAt(j-1))
+                {
+                    col2[j] = col1[j-1];
+                }
                 col2[j] = Math.min(
                         Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(index-1))][SEQUENCE_INDEX
                                 .indexOf(y.charAt(j-1))] + col1[j - 1], GAP_PENALTY + col1[j]),
@@ -176,83 +184,10 @@ public class Efficient {
         return cost;
     }
 
-    public int divide2(String xL, String xR, String y)
-    {
-        int cost = 0;
-
-        int[] colL = setCost(xL, y); // end column of xL
-        int[] colR = setCost(xR, y); // end column of xR
-        int min = colL[0] + colR[colR.length - 1];
-        int yMid = 0;
-
-        for (int i = 1; i < colL.length; i++)
-        {
-            if (colL[i] + colR[colR.length-1-i] < min)
-            {
-                min = colL[i] + colR[colR.length-1-i];
-                yMid = i;
-            }
-        }
-
-        cost = cost + min;
-        System.out.println(Arrays.toString(colL));
-        System.out.println(Arrays.toString(colR));
-        System.out.println("Cost first: " + cost);
-
-        if (xL.length() == 0 || xR.length() == 0 || y.length() == 0)
-        {
-            return cost;
-        }
-
-        // base cases
-        if (xL.length() <= 2)
-        {
-            getAlignments(xL, y);
-            System.out.println(xL + " " + y);
-            System.out.println("Cost: " + cost);
-            //return cost;
-        }
-        if (xR.length() <= 2)
-        {
-            getAlignments(xR, y);
-            System.out.println(xR + " " + y);
-            System.out.println("Cost: " + cost);
-            //return cost;
-        }
-        if (y.length() <= 2)
-        {
-            getAlignments(xL, y);
-            getAlignments(xR, y);
-            System.out.println(xL + " " + xR + " " + y);
-            System.out.println("Cost: " + cost);
-            //return cost;
-        }
-        else
-        {
-            String yL = "";
-            String yR = "";
-
-            System.out.print("Y length and yMid " + y.length() +  " " + yMid);
-
-            yL = y.substring(0, yMid-1);
-            yR = reverseSubstring(y, yMid-1);
-
-            // divide the left side
-            cost = cost + divide2(xL.substring(0, xL.length()/2), reverseSubstring(xL, xL.length()/2), yL);
-            System.out.println("Cost divide L: " + cost);
-            // divide the right side
-            cost = cost + divide2(xR.substring(0, xR.length()/2), reverseSubstring(xR, xR.length()/2), yR);
-            System.out.println("Cost divide R: " + cost);
-        }
-
-        System.out.println("Cost: " + cost);
-        return cost;
-    }
-
     public String reverseSubstring(String str, int index)
     {
         String rev = "";
-
+        
         for (int i = str.length()-1; i >= index; i--)
         {
             rev = rev + str.charAt(i);
@@ -298,20 +233,23 @@ public class Efficient {
         // initialize row 0
         for (int i1 = 0; i1 < opt[0].length; i1++) {
             opt[0][i1] = i1 * GAP_PENALTY;
+            System.out.println(0 + " " + i1 + " " + opt[0][i1]);
         }
 
         // initialize col 0
         for (int j1 = 0; j1 < opt.length; j1++) {
             opt[j1][0] = j1 * GAP_PENALTY;
+            System.out.println(j1 + " " + 0 + " " + opt[j1][0]);
         }
 
         // recurrence
         for (int i2 = 1; i2 < opt.length; i2++) {
             for (int j2 = 1; j2 < opt[0].length; j2++) {
                 // match case
-                if (s1.charAt(i2-1) == s2.charAt(j2-1))
+                if (x.charAt(i2-1) == y.charAt(j2-1))
                 {
                     opt[i2][j2] = opt[i2-1][j2-1];
+                    System.out.println(i2 + " " + j2 + " " + opt[i2][j2]);
                 }
                 else
                 {
@@ -338,6 +276,7 @@ public class Efficient {
                 a2 = y.charAt(j-1) + a2;
                 i--;
                 j--;
+                System.out.println("here1 " + i + " " + j);
             }
             // go diagonal
             else if (opt[i-1][j-1] + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(x.charAt(i-1))][SEQUENCE_INDEX.indexOf(y.charAt(j-1))] == opt[i][j])
@@ -346,6 +285,7 @@ public class Efficient {
                 a2 = y.charAt(j-1) + a2;
                 i--;
                 j--;
+                System.out.println("here2 " + i + " " + j);
             }
             // x_m go horizontal
             else if (opt[i-1][j] + GAP_PENALTY == opt[i][j])
@@ -353,6 +293,7 @@ public class Efficient {
                 a1 = x.charAt(i-1) + a1;
                 a2 = "_" + a2;
                 i--;
+                System.out.println("here3 " + i + " " + j);
             }
             // y_n go vertical
             else if (opt[i][j-1] + GAP_PENALTY == opt[i][j])
@@ -360,8 +301,14 @@ public class Efficient {
                 a2 = y.charAt(j-1) + a2;
                 a1 = "_" + a1;
                 j--;
+                System.out.println("here4 " + i + " " + j);
             }
-            
+            /** 
+            else
+            {
+                System.out.println("error");
+            }
+            */
         }
 
         // go down column
@@ -372,6 +319,7 @@ public class Efficient {
                 a2 = y.charAt(j-1) + a2;
                 a1 = "_" + a1;
                 j--;
+                System.out.println("here5 " + i + " " + j);
             }
         }
 
@@ -383,6 +331,7 @@ public class Efficient {
                 a1 = x.charAt(i-1) + a1;
                 a2 = "_" + a2;
                 i--;
+                System.out.println("here6 " + i + " " + j);
             }
         }
     }

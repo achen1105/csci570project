@@ -132,14 +132,18 @@ public class Efficient {
         { 
             System.out.println(x + " " + y);
             // System.out.println("Cost: " + cost);
-            return getAlignments(x, y);
+            String[] temp = getAlignments(x, y);
+            System.out.println("end of divide base case 1" + Arrays.toString(temp));
+            return temp;
             //return cost;
         }
-        if (y.length() <= 2)
+        else if (y.length() <= 2)
         {
             System.out.println(x + " " + y);
             // System.out.println("Cost: " + cost);
-            return getAlignments(x, y);
+            String[] temp = getAlignments(x, y);
+            System.out.println("end of divide base case 2" + Arrays.toString(temp));
+            return temp;
             //return cost;
         }
         else
@@ -165,26 +169,28 @@ public class Efficient {
             String yL = "";
             String yR = y;
 
-            System.out.print("Y length and yMid " + y.length() +  " " + yMid);
+            System.out.println("Y length and yMid " + y.length() +  " " + yMid);
 
             if (yMid >= 1)
             {
-                yL = y.substring(0, yMid-1);
-                yR = y.substring(yMid-1);
+                yL = y.substring(0, yMid);
+                yR = y.substring(yMid);
             }
 
             // divide the lower left side + divide the upper right side
             // first alignment
             al1 = divide(x.substring(0, x.length()/2), yL)[0] + divide(x.substring(x.length()/2), yR)[0];
-            System.out.println("Cost divide L: " + al1);
+            System.out.println("ALIGNMENT 1: " + al1);
             
             // second alignment
             al2 = divide(x.substring(0, x.length()/2), yL)[1] + divide(x.substring(x.length()/2), yR)[1];
-            System.out.println("Cost divide R: " + al2);
+            System.out.println("ALIGNMENT 2: " + al2);
         }
 
         //System.out.println("Cost: " + cost);
-        return new String[]{al1, al2};
+        String[] temp = new String[]{al1, al2};
+        System.out.println("end of divide method, alignments: " + Arrays.toString(temp));
+        return temp;
     }
 
     public String reverseSubstring(String str, int index)
@@ -232,6 +238,7 @@ public class Efficient {
     // basic version for base cases
     public String[] getAlignments(String x, String y)
     {
+        System.out.println("START ALIGNMENT " + x + " " + y);
         String align1 = "";
         String align2 = "";
         int[][] opt = new int[x.length()+1][y.length()+1];

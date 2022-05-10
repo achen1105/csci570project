@@ -8,10 +8,10 @@ public class Basic {
     // constants
     private static int GAP_PENALTY = 30;
     // A C G T
-    private static int[][] MISMATCH_PENALTY = { { 0, 110, 48, 94 }, 
-                                                { 110, 0, 118, 48 }, 
-                                                { 48, 118, 0, 110 },
-                                                { 94, 48, 110, 0 } };
+    private static int[][] MISMATCH_PENALTY = { { 0, 110, 48, 94 },
+            { 110, 0, 118, 48 },
+            { 48, 118, 0, 110 },
+            { 94, 48, 110, 0 } };
     private static String SEQUENCE_INDEX = "ACGT";
 
     // instance variables
@@ -27,7 +27,7 @@ public class Basic {
         String outputPath = args[1];
         Basic basic = new Basic(inputPath);
 
-        System.gc();
+        // System.gc();
         // From instructions
         double beforeUsedMem = getMemoryInKB();
         double startTime = getTimeInMilliseconds();
@@ -37,12 +37,14 @@ public class Basic {
 
         double afterUsedMem = getMemoryInKB();
         double endTime = getTimeInMilliseconds();
-        double totalUsage =  afterUsedMem-beforeUsedMem;
-        double totalTime =  endTime - startTime;
+        double totalUsage = afterUsedMem - beforeUsedMem;
+        double totalTime = endTime - startTime;
 
         basic.writeOutput(outputPath, (float) totalTime, (float) totalUsage);
 
-        //System.out.println("CSCI 570 Project " + basic.getSequence1() + " " + basic.getSequence2() + " " + totalUsage + " check output: " + basic.checkOutput());
+        // System.out.println("CSCI 570 Project " + basic.getSequence1() + " " +
+        // basic.getSequence2() + " " + totalUsage + " check output: " +
+        // basic.checkOutput());
     }
 
     /**
@@ -54,7 +56,7 @@ public class Basic {
         a1 = "";
         a2 = "";
         m = 0;
-        opt = new int[s1.length()+1][s2.length()+1];
+        opt = new int[s1.length() + 1][s2.length() + 1];
     }
 
     /**
@@ -69,104 +71,93 @@ public class Basic {
         a2 = "";
         m = 0;
         generateSequences(input);
-        opt = new int[s1.length()+1][s2.length()+1];
+        opt = new int[s1.length() + 1][s2.length() + 1];
     }
 
     public void setOPT() {
         // initialize row 0
         for (int i1 = 0; i1 < opt[0].length; i1++) {
             opt[0][i1] = i1 * GAP_PENALTY;
-            //System.out.println(0 + " " + i1 + " " + opt[0][i1]);
+            // System.out.println(0 + " " + i1 + " " + opt[0][i1]);
         }
 
         // initialize col 0
         for (int j1 = 0; j1 < opt.length; j1++) {
             opt[j1][0] = j1 * GAP_PENALTY;
-            //System.out.println(j1 + " " + 0 + " " + opt[j1][0]);
+            // System.out.println(j1 + " " + 0 + " " + opt[j1][0]);
         }
 
         // recurrence
         for (int i = 1; i < opt.length; i++) {
             for (int j = 1; j < opt[0].length; j++) {
                 // match case
-                if (s1.charAt(i-1) == s2.charAt(j-1))
-                {
-                    opt[i][j] = opt[i-1][j-1];
-                    //System.out.println(i + " " + j + " " + opt[i][j]);
-                }
-                else
-                {
+                if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
+                    opt[i][j] = opt[i - 1][j - 1];
+                    // System.out.println(i + " " + j + " " + opt[i][j]);
+                } else {
                     opt[i][j] = Math.min(
-                        Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX
-                                .indexOf(s2.charAt(j-1))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
-                        GAP_PENALTY + opt[i][j - 1]);
-                    //System.out.println(i + " " + j + " " + opt[i][j]);
+                            Math.min(MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i - 1))][SEQUENCE_INDEX
+                                    .indexOf(s2.charAt(j - 1))] + opt[i - 1][j - 1], GAP_PENALTY + opt[i - 1][j]),
+                            GAP_PENALTY + opt[i][j - 1]);
+                    // System.out.println(i + " " + j + " " + opt[i][j]);
                 }
             }
         }
 
         m = opt[s1.length()][s2.length()];
-        System.gc();
+        // System.gc();
     }
 
-    public void findAlignments()
-    {
+    public void findAlignments() {
         // top down pass
         int i = s1.length();
         int j = s2.length();
 
-        // fixed only this part using https://www.geeksforgeeks.org/sequence-alignment-problem/
-        while (i >= 1 && j >= 1)
-        {
+        // fixed only this part using
+        // https://www.geeksforgeeks.org/sequence-alignment-problem/
+        while (i >= 1 && j >= 1) {
             // matching pair
-            if (s1.charAt(i-1) == s2.charAt(j-1))
-            {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = s2.charAt(j-1) + a2;
+            if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
+                a1 = s1.charAt(i - 1) + a1;
+                a2 = s2.charAt(j - 1) + a2;
                 i--;
                 j--;
             }
             // go diagonal
-            else if (opt[i-1][j-1] + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i-1))][SEQUENCE_INDEX.indexOf(s2.charAt(j-1))] == opt[i][j])
-            {
-                a1 = s1.charAt(i-1) + a1;
-                a2 = s2.charAt(j-1) + a2;
+            else if (opt[i - 1][j - 1] + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(s1.charAt(i - 1))][SEQUENCE_INDEX
+                    .indexOf(s2.charAt(j - 1))] == opt[i][j]) {
+                a1 = s1.charAt(i - 1) + a1;
+                a2 = s2.charAt(j - 1) + a2;
                 i--;
                 j--;
             }
             // x_m go horizontal
-            else if (opt[i-1][j] + GAP_PENALTY == opt[i][j])
-            {
-                a1 = s1.charAt(i-1) + a1;
+            else if (opt[i - 1][j] + GAP_PENALTY == opt[i][j]) {
+                a1 = s1.charAt(i - 1) + a1;
                 a2 = "_" + a2;
                 i--;
             }
             // y_n go vertical
-            else if (opt[i][j-1] + GAP_PENALTY == opt[i][j])
-            {
-                a2 = s2.charAt(j-1) + a2;
+            else if (opt[i][j - 1] + GAP_PENALTY == opt[i][j]) {
+                a2 = s2.charAt(j - 1) + a2;
                 a1 = "_" + a1;
                 j--;
             }
         }
 
         // go down column
-        if (j > 0)
-        {
-            while (j > 0)
-            {
-                a2 = s2.charAt(j-1) + a2;
+        if (j > 0) {
+            while (j > 0) {
+                a2 = s2.charAt(j - 1) + a2;
                 a1 = "_" + a1;
                 j--;
             }
         }
 
         // go horizontally
-        if (i > 0)
-        {
-            while (i > 0)
-            {
-                a1 = s1.charAt(i-1) + a1;
+        if (i > 0) {
+            while (i > 0) {
+                a1 = s1.charAt(i - 1) + a1;
                 a2 = "_" + a2;
                 i--;
             }
@@ -221,52 +212,43 @@ public class Basic {
         return System.nanoTime() / 10e6;
     }
 
-    private boolean checkOutput()
-    {
+    private boolean checkOutput() {
         int cost = 0;
 
-        for (int i = 0; i < a1.length(); i++)
-        {
-            if (i < a2.length())
-            {
+        for (int i = 0; i < a1.length(); i++) {
+            if (i < a2.length()) {
                 // alignment
-                if (a1.charAt(i)==a2.charAt(i))
-                {
+                if (a1.charAt(i) == a2.charAt(i)) {
                     cost = cost + MISMATCH_PENALTY[0][0];
                 }
                 // gap
-                else if (a1.charAt(i) == '_' || a2.charAt(i) == '_')
-                {
+                else if (a1.charAt(i) == '_' || a2.charAt(i) == '_') {
                     cost = cost + GAP_PENALTY;
                 }
                 // mismatch
-                else
-                {
-                    cost = cost + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(a1.charAt(i))][SEQUENCE_INDEX.indexOf(a2.charAt(i))];
+                else {
+                    cost = cost + MISMATCH_PENALTY[SEQUENCE_INDEX.indexOf(a1.charAt(i))][SEQUENCE_INDEX
+                            .indexOf(a2.charAt(i))];
                 }
             }
         }
 
-        return cost==m;
+        return cost == m;
     }
 
     /**
      * Writes the output file
      * https://www.w3schools.com/java/java_files_create.asp
+     * 
      * @param output the output file path
      */
-    private void writeOutput(String output, float time, float memory)
-    {
-        try 
-        {
+    private void writeOutput(String output, float time, float memory) {
+        try {
             File myObj = new File(output);
-            if (myObj.createNewFile()) 
-            {
-              //System.out.println("File created: " + myObj.getName());
-            } 
-            else
-            {
-              //System.out.println("File already exists.");
+            if (myObj.createNewFile()) {
+                // System.out.println("File created: " + myObj.getName());
+            } else {
+                // System.out.println("File already exists.");
             }
 
             FileWriter myWriter = new FileWriter(output);
@@ -277,11 +259,9 @@ public class Basic {
             myWriter.write(Float.toString(memory));
 
             myWriter.close();
-            //System.out.println("Successfully wrote to the file.");
-        } 
-        catch (IOException e) 
-        {
-            //System.out.println("An error occurred.");
+            // System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            // System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
@@ -298,7 +278,7 @@ public class Basic {
         try {
             myScanner = new Scanner(myFile);
         } catch (FileNotFoundException e) {
-            //System.out.println("File not found");
+            // System.out.println("File not found");
             return;
         }
 

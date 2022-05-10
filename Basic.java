@@ -27,7 +27,7 @@ public class Basic {
         String outputPath = args[1];
         Basic basic = new Basic(inputPath);
 
-        // System.gc();
+        System.gc();
         // From instructions
         double beforeUsedMem = getMemoryInKB();
         double startTime = getTimeInMilliseconds();
@@ -41,6 +41,7 @@ public class Basic {
         double totalTime = endTime - startTime;
 
         basic.writeOutput(outputPath, (float) totalTime, (float) totalUsage);
+        System.gc();
 
         // System.out.println("CSCI 570 Project " + basic.getSequence1() + " " +
         // basic.getSequence2() + " " + totalUsage + " check output: " +

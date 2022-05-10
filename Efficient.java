@@ -25,7 +25,7 @@ public class Efficient {
         String outputPath = args[1];
         Efficient efficient = new Efficient(inputPath);
 
-        // System.gc();
+        System.gc();
 
         // From instructions
         double beforeUsedMem = getMemoryInKB();
@@ -41,7 +41,8 @@ public class Efficient {
         double totalTime = endTime - startTime;
 
         efficient.writeOutput(outputPath, cost, (float) totalTime, (float) totalUsage);
-
+        
+        System.gc();
         // System.out.println("Efficient " + efficient.getSequence1() + " " +
         // efficient.getSequence2() + " " + totalUsage);
     }
@@ -182,7 +183,7 @@ public class Efficient {
         // System.out.println("end of divide method, alignments: " +
         // Arrays.toString(temp));
         // return temp;
-        // System.gc();
+        //System.gc();
         return new String[] { al1, al2 };
     }
 
